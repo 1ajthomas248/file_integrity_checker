@@ -19,3 +19,10 @@ def compute_hash(file_path: str | Path) -> str:
             hasher.update(chunk)
     
     return hasher.hexdigest()
+
+def verify_hash(file_path: str | Path, expected_hash: str) -> Tuple[bool, str]:
+    normalized_hash = expected_hash.strip().lower()
+    actual_hash = compute_hash(file_path)
+    is_match = (actual_hash == normalized_hash)
+
+    return is_match, actual_hash
