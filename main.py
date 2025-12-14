@@ -66,8 +66,14 @@ def build_parser() -> argparse.ArgumentParser:
     hash_parser.set_defaults(func=cmd_hash)
 
     verify_parser = subparsers.add_parser(
-        "verifiy",
+        "verify",
         help="Verify a file against an expected SHA-256 hash",
+    )
+
+    verify_parser.add_argument(
+        "file",
+        type=str,
+        help="Path to the file to verify"
     )
 
     verify_parser.add_argument(
