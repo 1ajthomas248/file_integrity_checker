@@ -40,4 +40,51 @@ def cmd_verify(args: argparse.Namespace) -> int:
         print("Integrity check FAILED (hahed do NOT match)")
         return 2
     
-    
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="File Integrity Checker (SHA-256 Hasher)"
+    )
+
+    subparsers = parser.add_subparsers(
+        title="commands",
+        dest="command",
+        required=True,
+        help="Available commands",
+    )
+
+    hash_parser = subparsers.add_parser(
+        "hash",
+        help="Compute SHA-256 hash of a file",
+    )
+
+    hash_parser.add_argument(
+        "file",
+        type=str,
+        help="Path to the file to hash",
+    )
+
+    hash_parser.set_defaults(func=cmd_hash)
+
+    verify_parser = subparsers.add_parser(
+        "verifiy",
+        help="Verify a file against an expected SHA-256 hash",
+    )
+
+    verify_parser.add_argument(
+        "expected_hash",
+        type=str,
+        help="Expected SHA-256 hash",
+    )
+
+    verify_parser.set_defaults(func=cmd_verify)
+
+    return parser
+
+def main(argv: list[str] | None = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+
+    return args.func(args)
+
+if __name__ == "__main__":
+    raise SystemExit(main())
