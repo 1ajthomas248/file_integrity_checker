@@ -62,3 +62,44 @@ def list_files(baseline_path: str | Path = baseline_file) -> List[str]:
     data = load_baseline(baseline_path)
     return sorted(data.keys())
 
+@dataclass
+class ScanResult:
+    path: str
+    status: str
+    expected: str | None = None
+    actual: str | None = None
+    message: str | None = None
+
+def scan_files(baseline_path: str | Path = baseline_file) -> List[ScanResult]:
+    data = load_baseline(baseline_path)
+    results: List[ScanResult] = []
+
+    any_verified_at = utc_now_iso()
+    anything_changed = False
+
+    for file_path, meta in data.items():
+        expected = meta.get("SHA256")
+        p =  Path(file_path)
+
+        if not p.exists():
+            results.append(ScanResult(path=file_path, status="Missing", expected=expected))
+            anything_changed = True
+            continue
+
+        try:
+            actual = compute_hash(file_path)
+        except Exception as e:
+            results.append(ScanResult(path=file_path, status="Error", expected=expected, message=str(e)))
+            anything_changed = True
+            continue
+
+        if actual == expected:
+            results.append(ScanResult(path=file_path, status="OK", expected=expected, actual=actual))
+        else:
+            results.append(ScanResult(path=file_path, status="Changed", expected=expected, actual=actual))
+            anything_changed = True
+
+        meta["last_verified_at"] = any_verified_at
+    save_baseline(data, baseline_path)
+    
+    return results
