@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 from hashing import compute_hash, verify_hash
+from tracking import add_file, remove_file, list_files, scan_files
 
 def cmd_hash(args: argparse.Namespace) -> int:
     file_path = args.file
@@ -40,6 +41,60 @@ def cmd_verify(args: argparse.Namespace) -> int:
         print("Integrity check FAILED (hahed do NOT match)")
         return 2
     
+def cmd_track_add(args: argparse.Namespace) -> int:
+    try:
+        digest = add_file(args.file)
+    except FileNotFoundError as e:
+        print("No file {e}", file=sys.stderr)
+        return 1
+    
+    print(f"Tracking: {args.file}")
+    print(f"SHA-256:   {digest}")
+    return 0
+
+def cmd_track_list(args: argparse.Namespace) -> int:
+    files = list_files()
+    if not files:
+        print("No tracked files yet. Use: python main.py track add <file>")
+        return 0
+    
+    print("Tracked files:")
+    for f in files:
+        print(f"- {f}")
+    return 0
+
+def cmd_track_remove(args: argparse.Namespace) -> int:
+    removed = remove_file(args.file)
+    if removed:
+        print(f"Removed from tracking: {args.file}")
+        return 0
+    else:
+        print(f"Not tracked: {args.file}")
+        return 0
+    
+def cmd_track_scan(args: argparse.Namespace) -> int:
+    results = scan_files()
+
+    if not results:
+        print(f"No tracked files yet. Use: python main.py track add <file>")
+        return 0
+    
+    any_bad = False
+    for r in results:
+        if r.status == "OK":
+            print(f"OK  {r.path}")
+        elif r.status == "Changed":
+            any_bad = True
+            print(f"Changed {r.path}")
+        elif r.status == "Missing":
+            any_bad = True
+            print(f"Missing {r.path}")
+        else:
+            any_bad = True
+            print(f"Error {r.path} ({r.message})")
+    
+    return 2 if any_bad else 0
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="File Integrity Checker (SHA-256 Hasher)"
