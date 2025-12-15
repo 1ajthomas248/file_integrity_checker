@@ -38,14 +38,14 @@ def cmd_verify(args: argparse.Namespace) -> int:
         print("Integrity check PASSED (hashes match)")
         return 0
     else:
-        print("Integrity check FAILED (hahed do NOT match)")
+        print("Integrity check FAILED (hashes do NOT match)")
         return 2
     
 def cmd_track_add(args: argparse.Namespace) -> int:
     try:
         digest = add_file(args.file)
     except FileNotFoundError as e:
-        print("No file {e}", file=sys.stderr)
+        print(f"No file {e}", file=sys.stderr)
         return 1
     
     print(f"Tracking: {args.file}")
@@ -138,6 +138,44 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     verify_parser.set_defaults(func=cmd_verify)
+
+    track_parser = subparsers.add_parser(
+        "track",
+        help="Track files and scan for integrity changes",
+    )
+
+    track_subparsers = track_parser.add_subparsers(
+        dest="track_command",
+        required=True,
+        help="Tracking commands",
+    )
+
+    track_add = track_subparsers.add_parser(
+        "add",
+        help="Add a file to the baseline (store its current SHA-256)",
+    )
+    track_add.add_argument("file", type=str, help="Path to the file to track")
+    track_add.set_defaults(func=cmd_track_add)
+
+    track_list = track_subparsers.add_parser(
+        "list",
+        help="List all tracked files",
+    )
+    track_list.set_defaults(func=cmd_track_list)
+
+    track_scan = track_subparsers.add_parser(
+        "scan",
+        help="Scan all tracked files and report OK/CHANGED/MISSING",
+    )
+    track_scan.set_defaults(func=cmd_track_scan)
+
+    track_remove = track_subparsers.add_parser(
+        "remove",
+        help="Stop tracking a file (remove from baseline)",
+    )
+    track_remove.add_argument("file", type=str, help="Path to the file to remove")
+    track_remove.set_defaults(func=cmd_track_remove)
+
 
     return parser
 
