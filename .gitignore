@@ -1,0 +1,10 @@
+# Baseline (local data)
+baseline.json
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual env
+.venv/
+venv/
