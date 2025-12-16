@@ -26,3 +26,8 @@ def verify_hash(file_path: str | Path, expected_hash: str) -> Tuple[bool, str]:
     is_match = (actual_hash == normalized_hash)
 
     return is_match, actual_hash
+
+def compute_hash_bytes(data: bytes) -> str:
+    hasher = hashlib.sha256()
+    hasher.update(data)
+    return hasher.hexdigest()
