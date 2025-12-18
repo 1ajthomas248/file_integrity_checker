@@ -22,3 +22,5 @@ async def give_hash(file: UploadFile = File(...)):
         filename=file.filename,
         sha256=digest
     )
+
+# @app.post("/verify")
