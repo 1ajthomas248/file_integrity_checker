@@ -5,7 +5,7 @@ This project provides hashing, verification, tracking, and automation capabiliti
 
 ---
 
-## ✨ Features
+## Features
 
 - **SHA-256 Hash Generator + Verifier**  
   Generate secure SHA-256 hashes for files and verify them against expected values to detect tampering or corruption.
@@ -22,7 +22,7 @@ This project provides hashing, verification, tracking, and automation capabiliti
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - Python 3.9+
@@ -47,5 +47,3 @@ python main.py verify <file_path> <expected_hash>
 uvicorn app:app --reload
 
 Access endpoints at: http://127.0.0.1:8000
-
-
